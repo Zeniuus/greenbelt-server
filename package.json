@@ -1,6 +1,5 @@
 {
   "name": "greenbelt-server",
-  "type": "module",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -10,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@notionhq/client": "^0.4.11"
+    "@notionhq/client": "^0.4.11",
+    "googleapis": "^39.2.0"
   }
 }
