@@ -10,7 +10,7 @@ import { google } from 'googleapis';
 function getGoogleApiClient(credentials: any): Promise<any> {
   const jwtClient = new google.auth.JWT(
     credentials.client_email,
-    null,
+    undefined,
     credentials.private_key,
     ['https://www.googleapis.com/auth/spreadsheets'],
   );
@@ -38,8 +38,9 @@ export default async function getSpreadsheetData(credentialsPath: string, spread
       spreadsheetId,
       range,
     });
-    return values;
+    return values!;
   } catch (err) {
     console.log(`The API returned an error: ${err}`);
+    throw err;
   }
 }
