@@ -81,7 +81,7 @@ async function getSpreadsheetData(sheets: sheets_v4.Sheets, spreadsheetId: strin
   }
 }
 
-async function generateStaticImageUrl(drive: drive_v3.Drive, googleDriveImageId: string): Promise<string | null> {
+async function generateStaticImageUrl(drive: drive_v3.Drive, googleDriveImageId: string | null): Promise<string | null> {
   if (!googleDriveImageId) {
     return Promise.resolve(null);
   }
@@ -95,7 +95,7 @@ async function generateStaticImageUrl(drive: drive_v3.Drive, googleDriveImageId:
     .then((res) => {
       return res.data as any as Blob;
     });
-  const imageMimeType = /^image\/(.+)$/.exec(imageDataBlob.type)[1];
+  const imageMimeType = /^image\/(.+)$/.exec(imageDataBlob.type)![1];
   const imageName = `${encodeURIComponent(googleDriveImageId)}.${imageMimeType}`;
   const imageUrl = `http://k8s-suhwandev-31d7cacf43-467849984.ap-northeast-2.elb.amazonaws.com/images/${imageName}`;
   const imageData = Buffer.from(await imageDataBlob.arrayBuffer());

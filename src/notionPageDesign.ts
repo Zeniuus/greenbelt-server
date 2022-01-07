@@ -1,7 +1,6 @@
 import { CreatePageParameters } from "@notionhq/client/build/src/api-endpoints";
 
-export default function getNotionPageConfig(notionPageId: string, name: string, email: string, blahBlah: string, profileImageUrl: string): CreatePageParameters {
-  console.log(profileImageUrl);
+export default function getNotionPageConfig(notionPageId: string, name: string, email: string, blahBlah: string, profileImageUrl: string | null): CreatePageParameters {
   return {
     parent: {
       database_id: notionPageId,
