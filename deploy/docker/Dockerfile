@@ -8,4 +8,4 @@ RUN npm install
 COPY config/ ./config/
 COPY src/ ./src/
 
-CMD ["npm", "start"]
+CMD ["npm", "profilePageSyncer"]

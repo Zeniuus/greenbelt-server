@@ -4,3 +4,5 @@ node_modules/
 
 config/google-credentials.json
 config/secret.json
+
+.DS_Store

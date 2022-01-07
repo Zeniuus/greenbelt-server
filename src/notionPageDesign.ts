@@ -1,6 +1,7 @@
 import { CreatePageParameters } from "@notionhq/client/build/src/api-endpoints";
 
-export default function getNotionPageConfig(notionPageId: string, name: string, email: string, blahBlah: string): CreatePageParameters {
+export default function getNotionPageConfig(notionPageId: string, name: string, email: string, blahBlah: string, profileImageUrl: string): CreatePageParameters {
+  console.log(profileImageUrl);
   return {
     parent: {
       database_id: notionPageId,
@@ -39,6 +40,15 @@ export default function getNotionPageConfig(notionPageId: string, name: string, 
           ],
         },
       },
+      ...(
+        profileImageUrl ? [{
+          image: {
+            external: {
+              url: profileImageUrl,
+            },
+          },
+        }] : []
+      ),
     ],
   };
 }
