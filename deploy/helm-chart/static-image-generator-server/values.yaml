@@ -1,0 +1,47 @@
+replicaCount: 1 # 현재 설계 상 인메모리 캐싱을 하므로 반드시 1대만 떠야 한다.
+
+image:
+  repository: 563057296362.dkr.ecr.ap-northeast-2.amazonaws.com/greenbelt-server
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: latest
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+namespace: greenbelt
+
+service:
+  type: NodePort # https://docs.aws.amazon.com/eks/latest/userguide/alb-ingress.html
+  port: 80
+
+ingress:
+  enabled: true
+  className: ""
+  annotations:
+    kubernetes.io/ingress.class: alb # https://docs.aws.amazon.com/eks/latest/userguide/alb-ingress.html
+    alb.ingress.kubernetes.io/scheme: internet-facing # https://kubernetes-sigs.github.io/aws-load-balancer-controller/v2.2/guide/ingress/annotations/#scheme
+    alb.ingress.kubernetes.io/group.name: suhwan.dev # https://docs.aws.amazon.com/eks/latest/userguide/alb-ingress.html
+    alb.ingress.kubernetes.io/healthcheck-path: /healthz
+  hosts:
+    - host: k8s-suhwandev-31d7cacf43-467849984.ap-northeast-2.elb.amazonaws.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi

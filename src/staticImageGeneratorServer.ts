@@ -21,6 +21,9 @@ router.get('/images/:imageName', (ctx) => {
   ctx.set({ 'Content-Type': mimetype });
   ctx.body = buffer;
 });
+router.get('/healthz', (ctx) => {
+  ctx.body = 'alive';
+})
 
 app.use(router.routes());
 app.use(router.allowedMethods());

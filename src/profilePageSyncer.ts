@@ -97,7 +97,7 @@ async function generateStaticImageUrl(drive: drive_v3.Drive, googleDriveImageId:
     });
   const imageMimeType = /^image\/(.+)$/.exec(imageDataBlob.type)[1];
   const imageName = `${encodeURIComponent(googleDriveImageId)}.${imageMimeType}`;
-  const imageUrl = `http://localhost:8080/images/${imageName}`;
+  const imageUrl = `http://k8s-suhwandev-31d7cacf43-467849984.ap-northeast-2.elb.amazonaws.com/images/${imageName}`;
   const imageData = Buffer.from(await imageDataBlob.arrayBuffer());
 
   const formData = new FormData();
