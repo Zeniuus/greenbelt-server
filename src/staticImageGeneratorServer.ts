@@ -1,6 +1,7 @@
 import Koa from 'koa';
 import Router from '@koa/router';
 import multer from '@koa/multer';
+import { sync } from './profilePageSyncer';
 
 const app = new Koa();
 const router = new Router();
@@ -21,9 +22,14 @@ router.get('/images/:imageName', (ctx) => {
   ctx.set({ 'Content-Type': mimetype });
   ctx.body = buffer;
 });
+router.get('/sync', async (ctx) => {
+  const successCount = await sync();
+  console.log(`created ${successCount} new profile page(s)`);
+  ctx.body = successCount
+});
 router.get('/healthz', (ctx) => {
   ctx.body = 'alive';
-})
+});
 
 app.use(router.routes());
 app.use(router.allowedMethods());

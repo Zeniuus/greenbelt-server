@@ -19,5 +19,6 @@ spec:
             - name: {{ .Chart.Name }}
               image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
               imagePullPolicy: {{ .Values.image.pullPolicy }}
-              command: ["npm", "run", "profilePageSyncer"]
+              args:
+                - http://k8s-suhwandev-31d7cacf43-467849984.ap-northeast-2.elb.amazonaws.com/sync
           restartPolicy: OnFailure

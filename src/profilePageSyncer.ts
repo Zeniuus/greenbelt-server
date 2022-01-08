@@ -6,10 +6,10 @@ import axios from 'axios';
 import { getGoogleApiClient } from "./google-apis";
 import getCreateNotionPageConfig from './notionPageDesign';
 
-main()
+sync()
   .catch(err => console.log(err));
 
-async function main() {
+export async function sync(): Promise<number> {
   const { notionSecretKey } = await readJsonFile('config/secret.json');
   const notion = new Client({ auth: notionSecretKey });
 
@@ -61,7 +61,7 @@ async function main() {
         })
     });
   const successCount = (await Promise.all(notionPageCreationPromises)).length;
-  console.log(`created ${successCount} new profile page(s)`);
+  return successCount
 }
 
 async function readJsonFile(path: string): Promise<any> {

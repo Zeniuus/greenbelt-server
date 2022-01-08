@@ -1,8 +1,8 @@
 image:
-  repository: 563057296362.dkr.ecr.ap-northeast-2.amazonaws.com/greenbelt-server
+  repository: curlimages/curl
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: latest
+  tag: "7.81.0"
 
 imagePullSecrets: []
 nameOverride: ""
