@@ -25,7 +25,7 @@ ingress:
     alb.ingress.kubernetes.io/group.name: suhwan.dev # https://docs.aws.amazon.com/eks/latest/userguide/alb-ingress.html
     alb.ingress.kubernetes.io/healthcheck-path: /healthz
   hosts:
-    - host: k8s-suhwandev-31d7cacf43-467849984.ap-northeast-2.elb.amazonaws.com
+    - host: k8s-suhwandev-31d7cacf43-1245390296.ap-northeast-2.elb.amazonaws.com
       paths:
         - path: /
           pathType: Prefix

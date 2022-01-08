@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "greenbelt-static-image-generator-server.fullname" . }}
+  name: {{ include "greenbelt-sync-server.fullname" . }}
   labels:
-    {{- include "greenbelt-static-image-generator-server.labels" . | nindent 4 }}
+    {{- include "greenbelt-sync-server.labels" . | nindent 4 }}
   namespace: {{ .Values.namespace }}
 spec:
   type: {{ .Values.service.type }}
@@ -13,4 +13,4 @@ spec:
       protocol: TCP
       name: http
   selector:
-    {{- include "greenbelt-static-image-generator-server.selectorLabels" . | nindent 4 }}
+    {{- include "greenbelt-sync-server.selectorLabels" . | nindent 4 }}

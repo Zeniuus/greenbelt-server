@@ -1,13 +1,9 @@
 import { promises as fs } from 'fs';
-import FormData from 'form-data';
 import { Client } from "@notionhq/client"
 import { drive_v3, google, sheets_v4 } from 'googleapis';
-import axios from 'axios';
-import { getGoogleApiClient } from "./google-apis";
+import { getGoogleApiClient } from "./googleApis";
 import getCreateNotionPageConfig from './notionPageDesign';
-
-sync()
-  .catch(err => console.log(err));
+import temporaryImageHolder from './temporaryImageHolder';
 
 export async function sync(): Promise<number> {
   const { notionSecretKey } = await readJsonFile('config/secret.json');
@@ -55,7 +51,7 @@ export async function sync(): Promise<number> {
       });
     })
     .map(({ name, email, blahBlah, googleDriveImageId }) => {
-      return generateStaticImageUrl(drive, googleDriveImageId)
+      return generateTemporaryImageUrl(drive, googleDriveImageId)
         .then((imageUrl) => {
           return notion.pages.create(getCreateNotionPageConfig(notionPageId, name, email, blahBlah, imageUrl));
         })
@@ -81,7 +77,7 @@ async function getSpreadsheetData(sheets: sheets_v4.Sheets, spreadsheetId: strin
   }
 }
 
-async function generateStaticImageUrl(drive: drive_v3.Drive, googleDriveImageId: string | null): Promise<string | null> {
+async function generateTemporaryImageUrl(drive: drive_v3.Drive, googleDriveImageId: string | null): Promise<string | null> {
   if (!googleDriveImageId) {
     return Promise.resolve(null);
   }
@@ -97,14 +93,8 @@ async function generateStaticImageUrl(drive: drive_v3.Drive, googleDriveImageId:
     });
   const imageMimeType = /^image\/(.+)$/.exec(imageDataBlob.type)![1];
   const imageName = `${encodeURIComponent(googleDriveImageId)}.${imageMimeType}`;
-  const imageUrl = `http://k8s-suhwandev-31d7cacf43-467849984.ap-northeast-2.elb.amazonaws.com/images/${imageName}`;
+  const imageUrl = `http://k8s-suhwandev-31d7cacf43-1245390296.ap-northeast-2.elb.amazonaws.com/images/${imageName}`;
   const imageData = Buffer.from(await imageDataBlob.arrayBuffer());
-
-  const formData = new FormData();
-  formData.append('image', imageData, {
-    filename: imageName,
-    contentType: imageDataBlob.type,
-  });
-  return axios.post(imageUrl, formData, { headers: { 'Content-Type': `multipart/form-data; boundary = ${formData.getBoundary()}` } })
-    .then(() => imageUrl);
+  temporaryImageHolder.put(imageName, { mimeType: imageMimeType, buffer: imageData });
+  return imageUrl;
 }

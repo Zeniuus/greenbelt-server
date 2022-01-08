@@ -3,16 +3,13 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "profilePageSyncer": "ts-node src/profilePageSyncer.ts",
-    "staticImageGeneratorServer": "ts-node src/staticImageGeneratorServer.ts"
+    "syncServer": "ts-node src/syncServer.ts"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@koa/multer": "^3.0.0",
     "@koa/router": "^10.1.1",
     "@notionhq/client": "^0.4.11",
-    "axios": "^0.24.0",
     "googleapis": "^39.2.0",
     "koa": "^2.13.4"
   },

@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "greenbelt-static-image-generator-server.fullname" . }}
+  name: {{ include "greenbelt-sync-server.fullname" . }}
   labels:
-    {{- include "greenbelt-static-image-generator-server.labels" . | nindent 4 }}
+    {{- include "greenbelt-sync-server.labels" . | nindent 4 }}
   namespace: {{ .Values.namespace }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      {{- include "greenbelt-static-image-generator-server.selectorLabels" . | nindent 6 }}
+      {{- include "greenbelt-sync-server.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        {{- include "greenbelt-static-image-generator-server.selectorLabels" . | nindent 8 }}
+        {{- include "greenbelt-sync-server.selectorLabels" . | nindent 8 }}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -23,7 +23,7 @@ spec:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          command: ["npm", "run", "staticImageGeneratorServer"]
+          command: ["npm", "run", "syncServer"]
           ports:
             - name: http
               containerPort: 8080

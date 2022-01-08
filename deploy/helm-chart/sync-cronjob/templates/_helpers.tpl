@@ -1,7 +1,7 @@
 {{/*
 Expand the name of the chart.
 */}}
-{{- define "greenbelt-profile-page-syncer.name" -}}
+{{- define "greenbelt-sync-cronjob.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
@@ -10,7 +10,7 @@ Create a default fully qualified app name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 If release name contains chart name it will be used as a full name.
 */}}
-{{- define "greenbelt-profile-page-syncer.fullname" -}}
+{{- define "greenbelt-sync-cronjob.fullname" -}}
 {{- if .Values.fullnameOverride }}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
 {{- else }}
@@ -26,16 +26,16 @@ If release name contains chart name it will be used as a full name.
 {{/*
 Create chart name and version as used by the chart label.
 */}}
-{{- define "greenbelt-profile-page-syncer.chart" -}}
+{{- define "greenbelt-sync-cronjob.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
 Common labels
 */}}
-{{- define "greenbelt-profile-page-syncer.labels" -}}
-helm.sh/chart: {{ include "greenbelt-profile-page-syncer.chart" . }}
-{{ include "greenbelt-profile-page-syncer.selectorLabels" . }}
+{{- define "greenbelt-sync-cronjob.labels" -}}
+helm.sh/chart: {{ include "greenbelt-sync-cronjob.chart" . }}
+{{ include "greenbelt-sync-cronjob.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
@@ -45,17 +45,17 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{/*
 Selector labels
 */}}
-{{- define "greenbelt-profile-page-syncer.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "greenbelt-profile-page-syncer.name" . }}
+{{- define "greenbelt-sync-cronjob.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "greenbelt-sync-cronjob.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
 Create the name of the service account to use
 */}}
-{{- define "greenbelt-profile-page-syncer.serviceAccountName" -}}
+{{- define "greenbelt-sync-cronjob.serviceAccountName" -}}
 {{- if .Values.serviceAccount.create }}
-{{- default (include "greenbelt-profile-page-syncer.fullname" .) .Values.serviceAccount.name }}
+{{- default (include "greenbelt-sync-cronjob.fullname" .) .Values.serviceAccount.name }}
 {{- else }}
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
