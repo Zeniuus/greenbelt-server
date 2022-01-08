@@ -1,9 +1,9 @@
 import { promises as fs } from 'fs';
 import { Client } from "@notionhq/client"
 import { drive_v3, google, sheets_v4 } from 'googleapis';
+import AWS from 'aws-sdk';
 import { getGoogleApiClient } from "./googleApis";
 import getCreateNotionPageConfig from './notionPageDesign';
-import temporaryImageHolder from './temporaryImageHolder';
 
 export async function sync(): Promise<number> {
   const { notionSecretKey } = await readJsonFile('config/secret.json');
@@ -51,7 +51,7 @@ export async function sync(): Promise<number> {
       });
     })
     .map(({ name, email, blahBlah, googleDriveImageId }) => {
-      return generateTemporaryImageUrl(drive, googleDriveImageId)
+      return uploadImageToS3(drive, googleDriveImageId)
         .then((imageUrl) => {
           return notion.pages.create(getCreateNotionPageConfig(notionPageId, name, email, blahBlah, imageUrl));
         })
@@ -77,7 +77,7 @@ async function getSpreadsheetData(sheets: sheets_v4.Sheets, spreadsheetId: strin
   }
 }
 
-async function generateTemporaryImageUrl(drive: drive_v3.Drive, googleDriveImageId: string | null): Promise<string | null> {
+async function uploadImageToS3(drive: drive_v3.Drive, googleDriveImageId: string | null): Promise<string | null> {
   if (!googleDriveImageId) {
     return Promise.resolve(null);
   }
@@ -91,10 +91,16 @@ async function generateTemporaryImageUrl(drive: drive_v3.Drive, googleDriveImage
     .then((res) => {
       return res.data as any as Blob;
     });
+
   const imageMimeType = /^image\/(.+)$/.exec(imageDataBlob.type)![1];
   const imageName = `${encodeURIComponent(googleDriveImageId)}.${imageMimeType}`;
-  const imageUrl = `http://k8s-suhwandev-31d7cacf43-1245390296.ap-northeast-2.elb.amazonaws.com/images/${imageName}`;
   const imageData = Buffer.from(await imageDataBlob.arrayBuffer());
-  temporaryImageHolder.put(imageName, { mimeType: imageMimeType, buffer: imageData });
-  return imageUrl;
+
+  const s3 = new AWS.S3();
+  const uploadResult = await s3.upload({
+    Bucket: 'greenbelt-images',
+    Key: imageName,
+    Body: imageData,
+  }).promise();
+  return uploadResult.Location;
 }
