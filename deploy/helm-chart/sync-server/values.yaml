@@ -34,6 +34,10 @@ ingress:
     alb.ingress.kubernetes.io/scheme: internet-facing # https://kubernetes-sigs.github.io/aws-load-balancer-controller/v2.2/guide/ingress/annotations/#scheme
     alb.ingress.kubernetes.io/group.name: api.suhwan.dev # https://docs.aws.amazon.com/eks/latest/userguide/alb-ingress.html
     alb.ingress.kubernetes.io/healthcheck-path: /healthz
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-northeast-2:563057296362:certificate/bd3bc9f5-85ee-4363-8145-de946b9f7e08
+    # https://kubernetes-sigs.github.io/aws-load-balancer-controller/v2.2/guide/tasks/ssl_redirect/
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS":443}]'
+    alb.ingress.kubernetes.io/actions.ssl-redirect: '{"Type": "redirect", "RedirectConfig": { "Protocol": "HTTPS", "Port": "443", "StatusCode": "HTTP_301"}}'
   hosts:
     - host: greenbelt.api.suhwan.dev
       paths:
