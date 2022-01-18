@@ -1,67 +1,69 @@
-import { promises as fs } from 'fs';
+import * as fs from 'fs';
 import { Client } from "@notionhq/client"
 import { drive_v3, google, sheets_v4 } from 'googleapis';
 import AWS from 'aws-sdk';
 import { getGoogleApiClient } from "./googleApis";
 import getCreateNotionPageConfig from './notionPageDesign';
 
+const { notionSecretKey } = readJsonFile('config/secret.json');
+const { spreadsheetId, range, notionPageId } = readJsonFile('config/config.json');
+
 export async function sync(): Promise<number> {
-  const { notionSecretKey } = await readJsonFile('config/secret.json');
   const notion = new Client({ auth: notionSecretKey });
 
-  const { spreadsheetId, range, notionPageId } = await readJsonFile('config/config.json');
   const googleApiClient = await getGoogleApiClient('config/google-credentials.json');
-
   const sheets = google.sheets({ version: 'v4', auth: googleApiClient });
   const drive = google.drive({ version: 'v3', auth: googleApiClient });
 
   const spreadsheetData = await getSpreadsheetData(sheets, spreadsheetId, range);
-  const existingNotionPages = (await notion.databases.query({
-    database_id: notionPageId,
-    sorts: [
-      {
-        property: 'Created',
-        direction: 'descending',
-      },
-    ],
-    page_size: 100,
-  })).results;
-  const notionPageCreationPromises = spreadsheetData
-    .map((row) => {
-      const [dateStr, _, blahBlah, email, name, profileImageUrl] = row;
-
-      const date = new Date((Date as any)(dateStr));
-
-      const match = /\?id=(.+)$/.exec(profileImageUrl);
-      let googleDriveImageId = null;
-      if (match) {
-        googleDriveImageId = match[1];
-      }
-
-      return { date, name, email, blahBlah, googleDriveImageId };
-    })
+  const targetPagesData = spreadsheetData
+    .map(convertRowToNotionPageData)
     .filter(({ date }) => {
       const aDayBefore = new Date();
       aDayBefore.setDate(aDayBefore.getDate() - 1);
       return date > aDayBefore;
-    })
+    });
+  const existingNotionPages = (await notion.databases.query({
+    database_id: notionPageId,
+    filter: {
+      or: targetPagesData.map((data) => {
+        return {
+          property: '이메일',
+          text: {
+            equals: data.email,
+          },
+        };
+      }),
+    },
+  })).results;
+  const notionPageCreationPromises = targetPagesData
     .filter(({ email }) => {
       return !existingNotionPages.find((notionPage) => {
-        return (notionPage as any).properties.Email.rich_text[0].text.content == email;
+        return (notionPage as any).properties.이메일.rich_text[0].text.content == email;
       });
     })
-    .map(({ name, email, blahBlah, googleDriveImageId }) => {
-      return uploadImageToS3(drive, googleDriveImageId)
-        .then((imageUrl) => {
-          return notion.pages.create(getCreateNotionPageConfig(notionPageId, name, email, blahBlah, imageUrl));
-        })
+    .map((data) => {
+      return Promise.all([
+        uploadImageToS3(drive, data.profileImageGoogleDriveId),
+        uploadImageToS3(drive, data.experienceImageGoogleDriveId),
+        uploadImageToS3(drive, data.electionReasonImageGoogleDriveId),
+      ]).then((imageUrls) => {
+        const [profileImageUrl, experienceImageUrl, electionReasonImageUrl] = imageUrls;
+        return notion.pages.create(getCreateNotionPageConfig({
+          ...data,
+          notionPageId,
+          profileImageUrl,
+          experienceImageUrl,
+          electionReasonImageUrl,
+        }));
+      })
     });
   const successCount = (await Promise.all(notionPageCreationPromises)).length;
   return successCount
 }
 
-async function readJsonFile(path: string): Promise<any> {
-  return JSON.parse((await fs.readFile(path)).toString())
+function readJsonFile(path: string): any {
+  return JSON.parse(fs.readFileSync(path).toString());
 }
 
 async function getSpreadsheetData(sheets: sheets_v4.Sheets, spreadsheetId: string, range: string): Promise<any[][]> {
@@ -103,4 +105,71 @@ async function uploadImageToS3(drive: drive_v3.Drive, googleDriveImageId: string
     Body: imageData,
   }).promise();
   return uploadResult.Location;
+}
+
+function convertRowToNotionPageData(row: string[]): any {
+  const [
+    dateStr,
+    name,
+    email,
+    phoneNumber,
+    nameAndElection,
+    profileImageUrl,
+    shortSummary,
+    longSummary,
+    experience,
+    experienceImageUrl,
+    electionReason,
+    electionReasonImageUrl,
+    mbti,
+    favoriteMovieAndDrama,
+    howToSpendWeekends,
+    howToReduceStress,
+    favoriteFood,
+    respectingPeople,
+    favoriteBooks,
+    planAfterElected,
+    openChatUrl,
+  ] = row;
+  const date = new Date((Date as any)(dateStr));
+
+  const match1 = /\?id=(.+)$/.exec(profileImageUrl);
+  let profileImageGoogleDriveId = null;
+  if (match1) {
+    profileImageGoogleDriveId = match1[1];
+  }
+  const match2 = /\?id=(.+)$/.exec(experienceImageUrl);
+  let experienceImageGoogleDriveId = null;
+  if (match2) {
+    experienceImageGoogleDriveId = match2[1];
+  }
+  const match3 = /\?id=(.+)$/.exec(electionReasonImageUrl);
+  let electionReasonImageGoogleDriveId = null;
+  if (match3) {
+    electionReasonImageGoogleDriveId = match3[1];
+  }
+
+  return {
+    date,
+    name,
+    email,
+    phoneNumber,
+    nameAndElection,
+    profileImageGoogleDriveId,
+    shortSummary,
+    longSummary,
+    experience,
+    experienceImageGoogleDriveId,
+    electionReason,
+    electionReasonImageGoogleDriveId,
+    mbti,
+    favoriteMovieAndDrama,
+    howToSpendWeekends,
+    howToReduceStress,
+    favoriteFood,
+    respectingPeople,
+    favoriteBooks,
+    planAfterElected,
+    openChatUrl,
+  };
 }
