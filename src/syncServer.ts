@@ -18,3 +18,4 @@ app.use(router.routes());
 app.use(router.allowedMethods());
 
 app.listen(8080);
+console.log('started to listen to port 8080');
