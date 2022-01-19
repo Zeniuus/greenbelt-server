@@ -16,6 +16,9 @@ export async function sync(): Promise<number> {
   const drive = google.drive({ version: 'v3', auth: googleApiClient });
 
   const spreadsheetData = await getSpreadsheetData(sheets, spreadsheetId, range);
+  if (!spreadsheetData) {
+    return 0;
+  }
   const targetPagesData = spreadsheetData
     .map(convertRowToNotionPageData)
     .filter(({ date }) => {
@@ -111,8 +114,11 @@ function convertRowToNotionPageData(row: string[]): any {
   const [
     dateStr,
     name,
-    email,
     phoneNumber,
+    email,
+    facebookLink,
+    instagramLink,
+    blogLink,
     nameAndElection,
     profileImageUrl,
     shortSummary,
@@ -152,8 +158,11 @@ function convertRowToNotionPageData(row: string[]): any {
   return {
     date,
     name,
-    email,
     phoneNumber,
+    email,
+    facebookLink,
+    instagramLink,
+    blogLink,
     nameAndElection,
     profileImageGoogleDriveId,
     shortSummary,

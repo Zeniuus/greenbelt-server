@@ -4,8 +4,11 @@ interface NotionPageData {
   notionPageId: string;
   date: Date;
   name: string;
-  email: string;
   phoneNumber: string;
+  email: string;
+  facebookLink: string;
+  instagramLink: string;
+  blogLink: string;
   nameAndElection: string;
   profileImageUrl?: string;
   shortSummary: string;
@@ -30,9 +33,6 @@ export default function getNotionPageConfig(data: NotionPageData): CreatePagePar
     parent: {
       database_id: data.notionPageId,
     },
-    icon: {
-      emoji: '🚀',
-    },
     properties: {
       Name: {
         title: [
@@ -43,24 +43,11 @@ export default function getNotionPageConfig(data: NotionPageData): CreatePagePar
           },
         ],
       },
-      이메일: {
-        rich_text: [
-          {
-            text: {
-              content: data.email,
-            },
-          },
-        ],
-      },
-      요약: {
-        rich_text: [
-          {
-            text: {
-              content: data.shortSummary,
-            },
-          },
-        ],
-      },
+      이메일: propertyContent(data.email),
+      요약: propertyContent(data.shortSummary),
+      '페이스북 주소': propertyContent(data.facebookLink, data.facebookLink),
+      '인스타그램 주소': propertyContent(data.instagramLink, data.instagramLink),
+      '개인 페이지 주소': propertyContent(data.blogLink, data.blogLink),
     },
     children: [
       ...data.profileImageUrl ? [image(data.profileImageUrl)] : [],
@@ -94,7 +81,7 @@ export default function getNotionPageConfig(data: NotionPageData): CreatePagePar
       emptyLine(),
 
       // TODO: callout도 함수화하기
-      {
+      ...(data.openChatUrl ? [{
         object: 'block',
         callout: {
           text: [
@@ -109,7 +96,7 @@ export default function getNotionPageConfig(data: NotionPageData): CreatePagePar
               text: {
                 content: '오픈채팅방 들어오기',
                 link: {
-                  url: data.openChatUrl,
+                  url: data.openChatUrl.startsWith('http') ? data.openChatUrl : `https://${data.openChatUrl}`,
                 },
               },
             },
@@ -123,6 +110,21 @@ export default function getNotionPageConfig(data: NotionPageData): CreatePagePar
           icon: {
             emoji: '🤟',
           },
+        },
+      }] : []),
+    ],
+  };
+}
+
+function propertyContent(text: string, link: string | null = null): any {
+  return {
+    rich_text: [
+      {
+        text: {
+          content: text,
+          link: link ? {
+            url: link,
+          } : null,
         },
       },
     ],
