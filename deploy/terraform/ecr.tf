@@ -1,5 +1,5 @@
-resource "aws_ecr_repository" "server" {
-  name                 = "greenbelt-server"
+resource "aws_ecr_repository" "greenbelt_cron" {
+  name                 = "greenbelt-cron"
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {

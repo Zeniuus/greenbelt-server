@@ -1,23 +1,20 @@
 {
-  "name": "greenbelt-server",
+  "name": "greenbelt-cron",
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "syncServer": "ts-node src/syncServer.ts"
+    "cronjob": "ts-node src/cronjob.ts"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@koa/router": "^10.1.1",
     "@notionhq/client": "^0.4.11",
     "aws-sdk": "^2.1053.0",
-    "googleapis": "^39.2.0",
-    "koa": "^2.13.4"
+    "cron": "^1.8.2",
+    "googleapis": "^39.2.0"
   },
   "devDependencies": {
-    "@types/koa": "^2.13.4",
-    "@types/koa__multer": "^2.0.4",
-    "@types/koa__router": "^8.0.11",
+    "@types/cron": "^1.7.3",
     "ts-node": "^10.4.0"
   }
 }
